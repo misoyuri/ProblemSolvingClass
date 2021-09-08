@@ -21,6 +21,14 @@ int gF=0;
 
 List *relation;
 
+void printStatus(){
+    cout << "-----------------status------------------" << endl;
+    for(int i = 1; i <= gN; i++){
+        cout << i << "::" << relation[i].status << endl;
+    }
+    cout << "-----------------------------------------" << endl;
+}
+
 void printList(){
     cout << "-----------------------------------------" << endl;
     for(int i = 1; i <= gN; i++){
@@ -28,7 +36,7 @@ void printList(){
         cout << i << "::";
         if(tempList->next != NULL) tempList = tempList->next;
         while(tempList != NULL){
-            cout <<  tempList->nodeName << "-> " ;
+            cout <<  "[" << tempList->nodeName << ", " << tempList->status << "] " "-> " ;
             tempList = tempList->next;
         }
         cout << endl;
@@ -40,11 +48,13 @@ int subSearch(int startIdx, int id, int cnt){
     if(relation[startIdx].linkedSize < gK) return cnt;
     if(relation[startIdx].status != 0) return cnt;
     List *tempList = &relation[startIdx];
+    // printList();
 
     while(tempList != NULL){
-        cout << tempList->nodeName << "->" ;
-        if(tempList->status == 0){
-            tempList->status = id;
+        // cout << tempList->nodeName << "->" ;ss
+        if(relation[tempList->nodeName].linkedSize >= gK && relation[tempList->nodeName].status == 0){
+            // cout << "Name::" << relation[tempList->nodeName].nodeName << " | status::" << relation[tempList->nodeName].status << " | size::" << relation[tempList->nodeName].linkedSize << endl;
+            relation[tempList->nodeName].status = id;
             cnt++;
             cnt = subSearch(tempList->nodeName, id, cnt);
         }
@@ -59,11 +69,17 @@ int mainSearch(){
     int maxNumSet = 0;
     int retNumSet = 0;
     for(int i = 1; i <= gN; i++){
-        cout << "main::" << i << "]" ;
+        // cout << "main::" << i << "]" ;
         retNumSet = subSearch(i, i, 0);
+        
         cout << endl;
+        // printStatus();
+        if(retNumSet > gK){
+            cout << i << "]retNumSet::" << retNumSet <<endl;
+            maxNumSet += retNumSet;
+        }
         if(retNumSet > maxNumSet) maxNumSet = retNumSet;
-        cout << i << "::" << maxNumSet << endl;
+        // cout << i << "::" << maxNumSet << endl;
     }
 
     return maxNumSet;
@@ -88,6 +104,8 @@ void initList(){
 
 int main(){
     initList();
-    cout << mainSearch() << endl;
-    // printList();
+    int answer = mainSearch();
+    cout << "answer::"<< answer << endl;
+    printList();
+    printStatus();
 }
