@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include <unistd.h>
 using namespace std;
 
 typedef struct List{
@@ -16,24 +16,41 @@ typedef struct List{
     }
 
     void del(int target){
-        List *tempList = this;
-        if(tempList->next == NULL) {
-            return;
-        }else{
-            tempList = tempList->next;
-        }
-        cout << this->nodeName << "::del in! for " << target << endl;
-        while(tempList != NULL){
-            if(tempList->nodeName == target){
-                tempList->prev->next = tempList->next;
-                tempList->next->prev = tempList->prev;
-                this->linkedSize--;
-            }
+        List *tempList = this->next;
+        List *prevList = this;
 
-            tempList = tempList->next;
+        if(tempList == NULL ) {
+            return;
         }
+
+        if(tempList->nodeName == target && tempList->next == NULL){
+            tempList = NULL;
+            prevList->next = NULL;
+            return;
+        }
+
+        cout << "del]curNode::" << this->nodeName << " for " << target << endl;
+        while(tempList != NULL){
+            // cout << "del]rootNode::" << this->nodeName << "-> curNode::" << tempList->nodeName << " ";
+            if(tempList->nodeName == target){
+                // if(this->linkedSize == 1){
+                    tempList->next = NULL;
+                    // delete tempList;
+                // }else{
+                    List *delNode = tempList;
+                    prevList->next = delNode->next;
+                    // delete delNode;
+                    this->linkedSize--;
+                // }
+                
+            }
+            tempList = tempList->next;
+            if(prevList != this)
+                prevList = prevList->next;
+        }
+        cout << endl;
         
-        delete tempList;
+        // delete tempList;
     }
 };
 
@@ -60,14 +77,14 @@ void printList(){
     for(int i = 1; i <= gN; i++){
         List *tempList = &relation[i];
         cout << i << "::";
-        if(tempList->next != NULL) tempList = tempList->next;
+        // if(tempList->next != NULL) tempList = tempList->next;
         while(tempList != NULL){
             cout <<  "[" << tempList->nodeName << ", " << tempList->status << "] " "-> " ;
             tempList = tempList->next;
         }
         cout << endl;
 
-        delete tempList;
+        // delete tempList;
     }
     cout << "-----------------------------------------" << endl;
 }
@@ -95,7 +112,7 @@ int subSearch(int startIdx, int id, int cnt){
         tempList = tempList->next;
     }
 
-    delete tempList;
+    // delete tempList;
     return cnt;
 }
 
@@ -120,23 +137,27 @@ int mainSearch(){
     return maxNumSet;
 }
 
+void resetTargetNodes(){
+    cout << "hi" << endl;
+    for(int i = 1; i <=gN;i++){
+        targetNodes[i] = 0;
+    }
+    cout << "bye" << endl;
+}
+
 void optimizeList(){
     List* tempList;
     bool isEnd = true;
     int trial = 1;
+    printList();
     while(true){
         isEnd = true;
-        cout << "while in!"<< endl;
+        // resetTargetNodes();
+        std::cout << "while in!"<< endl;
         for(int i = 1; i <= gN; i++){
-            tempList = &relation[i];
-            while(tempList != NULL){
-                if(relation[tempList->nodeName].linkedSize < gK){
-                    cout <<"Opt::target Node:" << tempList->nodeName << " | linkedSize:" << tempList->linkedSize << " | gK: " << gK <<endl;
-                    targetNodes[tempList->nodeName] = 1;
-                    targetNodesIdx++;
-                    isEnd = false;
-                }
-                tempList = tempList->next;
+            if(relation[i].linkedSize < gK){
+                targetNodes[relation[i].nodeName] = 1;
+                isEnd = false;
             }
         }
 
@@ -154,6 +175,15 @@ void optimizeList(){
                 if(targetNodes[j] == 1)
                     relation[i].del(j);
             }
+            
+        }
+        if(trial < 3){
+
+            printList();
+            // usleep(500000000);
+        }else if(trial == 3){
+            printList();
+            usleep(500000000);
         }
         trial++;
     }
@@ -165,7 +195,7 @@ void initList(){
     cin >> gN >> gK >> gF;
 
     relation = new List[gN+1];
-    targetNodes = new int[gN + 1]{0, };
+    targetNodes = new int[gN+1];
     for(int i = 1; i <= gN; i++) relation[i].nodeName = i;
 
     for(int i = 0; i < gF; i++){
@@ -180,13 +210,8 @@ void initList(){
 
 int main(){
     initList();
-    cout << "Mian] target List::";
-    for(int j = 1; j <= gN; j++){
-        if(targetNodes[j]) cout << j << " ";
-    }
-    cout << endl;
-
     optimizeList();
+
     cout << "opt out!" << endl;
     int answer = mainSearch();
     cout << "answer::"<< answer << endl;
