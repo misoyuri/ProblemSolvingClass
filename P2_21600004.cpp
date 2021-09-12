@@ -14,14 +14,16 @@ void SWAP(Pair *a, Pair *b){
 }
 
 void printCity(Pair *city, int n){
+    cout << "-------------------------------------" << endl;
     cout << "\txPose\t\tpNumber" << endl;
     for(int i = 0; i < n; i++){
         cout << i << "]\t" << city[i].xPos <<"\t\t" << city[i].pNumber << endl;
     }
+    cout << "-------------------------------------" << endl;
 }
 
 int partition(Pair *city, int left, int right){
-    int pivot = left, i = left + 1, j = right;
+    int pivot = left, i = left, j = right;
 
     while(i < j){
         while(city[i].xPos < city[pivot].xPos && i <= right){
@@ -30,7 +32,6 @@ int partition(Pair *city, int left, int right){
         
         while(city[j].xPos > city[pivot].xPos && j >= left){
             j--;
-
         }
 
         if(i < j){
@@ -59,21 +60,49 @@ long long findMaxPeople(Pair *city, int n, int k){
     long long currentRange = 0;
     int smallIdx = 0, largeIdx = 0;
     
-    for(smallIdx = 0, largeIdx = 0; smallIdx < n; smallIdx++){
-        if(smallIdx > largeIdx) largeIdx = smallIdx;
+    for(largeIdx = 0; largeIdx < n; largeIdx++){
+        currentRange = city[largeIdx].xPos - city[0].xPos;
 
-        currentRange = city[largeIdx].xPos - city[smallIdx].xPos;
+        if(currentRange <= possibleRange) {
+            cout << "[" << city[smallIdx].xPos << " ~ " << city[largeIdx].xPos << "] = " << answer << endl;
+            answer += city[largeIdx].pNumber;
+        }
+        else
+            break;
+    }
 
-        while(currentRange <= possibleRange){
-            
-            if(largeIdx < n -1){
-                subAnswer += city[largeIdx].pNumber;
+    if(largeIdx == n) largeIdx--;
+    cout << " ldasd " << largeIdx << endl;
+    
+    subAnswer = answer - city[0].pNumber;
+
+    for(smallIdx = 1; smallIdx < n; smallIdx++){
+        if(largeIdx < smallIdx) largeIdx = smallIdx;
+        cout << smallIdx << endl;
+        
+        while(true){
+            if(largeIdx >= n - 1){
+                currentRange = city[largeIdx].xPos - city[smallIdx].xPos;
+
+                if(currentRange <= possibleRange){
+                    subAnswer += city[largeIdx].pNumber;
+                }
+
+                break;
+            }else{
                 largeIdx++;
                 currentRange = city[largeIdx].xPos - city[smallIdx].xPos;
-            }else{
-                break;
+
+                if(currentRange <= possibleRange){
+                    subAnswer += city[largeIdx].pNumber;
+                }else{
+                    largeIdx--;
+                    break;
+                }   
             }
         }
+        cout << "[" << city[smallIdx].xPos << " ~ " << city[largeIdx].xPos << "] = " << subAnswer << endl;
+            
 
         if(subAnswer > answer) answer = subAnswer ;
         subAnswer -= city[smallIdx].pNumber;
@@ -95,7 +124,7 @@ int main(){
     }
 
     quickSort(city, 0, n - 1);
-    // printCity(city, n);
+    printCity(city, n);
 
     cout << findMaxPeople(city, n, k) << endl;
 
