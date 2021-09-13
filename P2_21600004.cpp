@@ -60,27 +60,8 @@ long long findMaxPeople(Pair *city, int n, int k){
     long long answer = 0;
     long long subAnswer = 0;
     long long possibleRange = 2 * k;
-    long long currentRange = 0;
     int smallIdx = 1, largeIdx = 1;
     
-    // for(smallIdx = 1, largeIdx = 1; smallIdx <= n; smallIdx++){
-    //     subAnswer = 0;
-    //     for(largeIdx = smallIdx; largeIdx <= n; largeIdx++){
-    //         currentRange = city[largeIdx].xPos - city[smallIdx].xPos;
-
-    //         if(currentRange <= possibleRange) {
-    //             subAnswer += city[largeIdx].pNumber;
-    //         }
-    //         else{
-    //             break;
-    //         }
-    //     }
-    //     // largeIdx--;
-    //     cout << "[" << city[smallIdx].xPos << " ~ " << city[largeIdx].xPos << "] = " << subAnswer << endl;
-    //     if(subAnswer > answer) answer = subAnswer;
-    //     subAnswer -= city[largeIdx].pNumber;
-    // }
-
     do{
         while(city[largeIdx].xPos - city[smallIdx].xPos <= possibleRange && largeIdx <= n){
             subAnswer += city[largeIdx].pNumber;
@@ -88,13 +69,14 @@ long long findMaxPeople(Pair *city, int n, int k){
         }
 
         if(subAnswer > answer) answer = subAnswer;
+        
         subAnswer -= city[smallIdx].pNumber;
         smallIdx++;
+
         if(smallIdx > largeIdx) largeIdx = smallIdx;
 
     }while(smallIdx <= n);
     
-
     return answer;
 }
 
@@ -111,8 +93,6 @@ int main(){
 
     quickSort(city, 1, n);
     // printCity(city, n);
-
-
 
     cout << findMaxPeople(city, n, k) << endl;
 
