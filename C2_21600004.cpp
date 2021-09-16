@@ -2,62 +2,101 @@
 
 using namespace std;
 
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
+
 int gN = 0;
 int **map;
 int **mem;
 
-int subSolve(int x, int y){
-    if( x < 0 || x >= gN) return 0;
-    if( y < 0 || y >= gN) return 0;
+bool isAccessible(int x, int y){
+    if(0 > x || x >= gN) return false;
+    if(0 > y || y >= gN) return false;
 
-    if(mem[x][y] >= 0) return mem[x][y];
-
-    cout << "[" << x << ", " << y << "]" << endl;
-
-    int ret = 0;
-    int diff = 0;
-    int subAns1 = subSolve(x+1, y+1);
-    int subAns2 = subSolve(x-1, y+1);
-    int subAns3 = subSolve(x+1, y-1);
-    int subAns4 = subSolve(x-1, y-1);
-    
-    if(ret < subAns1){
-        ret = subAns1;
-        diff = map[x][y] - map[x+1][y+1];
-    } 
-    if(ret < subAns2) {
-        ret = subAns2;
-        diff = map[x][y] - map[x-1][y+1];
-    }
-
-    if(ret < subAns3) {
-        ret = subAns3;
-        diff = map[x][y] - map[x+1][y-1];
-    }
-
-    if(ret < subAns4) {
-        ret = subAns4;
-        diff = map[x][y] - map[x-1][y-1];
-    }
-    
-    mem[x][y] = ret + diff;
-    return mem[x][y];
+    return true;
 }
+
+int subSolve(int i, int j){
+    int ret = 0;
+    int subAns = 0;
+    int tempAns = 0;
+
+    if(mem[i][j] == -1){
+        if(isAccessible(i+1, j) && map[i][j] > map[i+1][j]){
+            tempAns = subSolve(i+1, j) + map[i][j] - map[i+1][j];
+            subAns = MAX(tempAns, subAns);
+        }
+
+        if(isAccessible(i-1, j) && map[i][j] > map[i-1][j]){
+            tempAns = subSolve(i-1, j) + map[i][j] - map[i-1][j];
+            subAns = MAX(tempAns, subAns);
+        }
+
+        if(isAccessible(i, j+1) && map[i][j] > map[i][j+1]){
+            tempAns = subSolve(i, j+1) + map[i][j] - map[i][j+1];
+            subAns = MAX(tempAns, subAns);
+        }
+
+        if(isAccessible(i, j-1) && map[i][j] > map[i][j-1]){
+            tempAns = subSolve(i, j-1) + map[i][j] - map[i][j-1];
+            subAns = MAX(tempAns, subAns);
+        }
+
+        mem[i][j] = subAns;
+        ret = MAX(ret, subAns);
+    }else{
+        ret = mem[i][j];
+    }
+
+    
+    // cout << "[" << i << ", "<< j <<"]::" << ret << endl;
+    return ret;
+}
+
 
 int solve(){
     int ret = 0;
     int subAns = 0;
-
+    int tempAns = 0;
     for(int i = 0; i < gN; i++){
         for(int j = 0; j < gN; j++){
+            tempAns = subAns = 0;
             if(mem[i][j] == -1){
-                subAns = subSolve(i, j);
-                if(subAns > ret) ret = subAns;
+                if(isAccessible(i+1, j) && map[i][j] > map[i+1][j]){
+                    tempAns = subSolve(i+1, j) + map[i][j] - map[i+1][j];
+                    subAns = MAX(tempAns, subAns);
+                }
+
+                if(isAccessible(i-1, j) && map[i][j] > map[i-1][j]){
+                    tempAns = subSolve(i-1, j) + map[i][j] - map[i-1][j];
+                    subAns = MAX(tempAns, subAns);
+                }
+
+                if(isAccessible(i, j+1) && map[i][j] > map[i][j+1]){
+                    tempAns = subSolve(i, j+1) + map[i][j] - map[i][j+1];
+                    subAns = MAX(tempAns, subAns);
+                }
+
+                if(isAccessible(i, j-1) && map[i][j] > map[i][j-1]){
+                    tempAns = subSolve(i, j-1) + map[i][j] - map[i][j-1];
+                    subAns = MAX(tempAns, subAns);
+                }
+
+                mem[i][j] = subAns;
+                ret = MAX(ret, subAns);
             }
         }
     }
 
-    return subAns;
+    return ret;
+}
+
+void printMaps(){
+    for(int i = 0; i < gN; i++){
+        for(int j = 0; j < gN; j++){
+            cout << mem[i][j] << " ";
+        }
+        cout << endl;
+    }
 }
 
 void initMaps(){
@@ -82,6 +121,6 @@ void initMaps(){
 int main(){
     initMaps();
     cout << solve() << endl;
-
+    // printMaps();
     return 0;
 }
