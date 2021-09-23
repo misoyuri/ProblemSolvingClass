@@ -5,12 +5,12 @@ using namespace std;
 typedef struct Node{
     Node *prev = NULL;
     Node *next = NULL;
-    int data = 0;
+    float data = 0;
 };
 
 Node *head;
 Node *tail;
-int nodeSize = 0;
+float nodeSize = 0;
 
 void initList(){
     head = new Node();
@@ -24,7 +24,7 @@ void initList(){
     nodeSize = 0;
 }
 
-Node* searchSmallerNode(int data)
+Node* searchSmallerNode(float data)
 {
 	Node* iterateNode = head->next;	
 
@@ -50,7 +50,7 @@ void deltNode(Node *target){
 	nodeSize--;
 }
 
-void addNode(Node *target, int data){
+void addNode(Node *target, float data){
     Node *newNode = new Node();
     newNode->data = data;
 
@@ -80,7 +80,7 @@ void printList(){
     cout << endl << "size::" << nodeSize << endl;
 }
 
-int solve(int M){
+float solve(float M){
     int ret = 0;
 
 	for(;;)
@@ -88,7 +88,7 @@ int solve(int M){
         Node* iterateNode = head->next;
         if(iterateNode == tail) break;
 
-        int remainder = M - iterateNode->data;
+        float remainder = M - iterateNode->data;
         iterateNode = iterateNode->next;
         deltNode(iterateNode->prev);
         ret++;
@@ -111,14 +111,14 @@ int solve(int M){
 
 int main(){
     initList();
-    int data = 0;
+    float data = 0;
     int M = 0;
 
     cin >> M;
     if(M > 100000) M = 100000;
 
     while(cin >> data){
-        if(data <= 0) continue;
+        if(data <= 0 || data > M) continue;
         addNode(searchSmallerNode(data), data);
     }
 
