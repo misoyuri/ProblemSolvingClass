@@ -6,11 +6,11 @@ typedef struct Node{
     Node *prev = NULL;
     Node *next = NULL;
     int data = 0;
+    int count = 0;
 };
 
 Node *head;
 Node *tail;
-int nodeSize = 0;
 
 void initList(){
     head = new Node();
@@ -21,7 +21,6 @@ void initList(){
     tail->next = tail;
     tail->prev = head;
 
-    nodeSize = 0;
 }
 
 Node* searchSmallerNode(int data)
@@ -43,17 +42,25 @@ Node* searchSmallerNode(int data)
 void deltNode(Node *target){
 	// if (target == head || target == tail)
 	// 	return;
+    if(target->count > 1){ 
+        target->count--;
+        return;    
+    }
 
 	target->next->prev = target->prev;
 	target->prev->next = target->next;
 	free(target);
-	nodeSize--;
 }
 
 void addNode(Node *target, int data){
+    if(target->count > 0 && target->data == data){
+        target->count++;
+        return;
+    }
+
     Node *newNode = new Node();
     newNode->data = data;
-
+    newNode->count++;
     if(target == head){
         target->next->prev = newNode;
         newNode->next = target->next;
@@ -66,18 +73,16 @@ void addNode(Node *target, int data){
         target->prev = newNode;
     }
 
-    nodeSize++;
 }
 
 void printList(){
     Node* iterateNode = head->next;	
 
     while (iterateNode != tail){
-        cout << "[" << iterateNode << ", " << iterateNode->data << "] ";
+        cout << "[" << iterateNode->data << "::" << iterateNode->count << "] ";
 		iterateNode = iterateNode->next;
 	}
 
-    cout << endl << "size::" << nodeSize << endl;
 }
 
 int solve(int M){
@@ -89,21 +94,25 @@ int solve(int M){
         if(iterateNode == tail) break;
 
         int remainder = M - iterateNode->data;
+
+        cout << "[" << iterateNode->data << "]";
+
         iterateNode = iterateNode->next;
         deltNode(iterateNode->prev);
         ret++;
 
+        if(remainder == 0) cout << endl;
         if(remainder == 0) continue;
 
         while (iterateNode != tail){
             if(remainder - iterateNode->data >= 0){
+                cout << "[" << iterateNode->data << "]";
                 deltNode(iterateNode);
-
                 break;
             }
             iterateNode = iterateNode->next;
         }
-        // printList();
+        cout << endl;
 	}
 
     return ret;
@@ -115,17 +124,14 @@ int main(){
     int M = 0;
 
     cin >> M;
-    // if(M > 100000) M = 100000;
 
     while(cin >> data){
-        // if(data <= 0 || data > M) continue;
         addNode(searchSmallerNode(data), data);
     }
 
+    
     // printList();
     cout << solve(M) << endl;
-    // cout << "sol::" << solve(M) << endl;
-    
 
     return 0;
 }
