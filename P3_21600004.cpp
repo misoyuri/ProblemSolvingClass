@@ -5,12 +5,12 @@ using namespace std;
 typedef struct Node{
     Node *prev = NULL;
     Node *next = NULL;
-    float data = 0;
+    int data = 0;
 };
 
 Node *head;
 Node *tail;
-float nodeSize = 0;
+int nodeSize = 0;
 
 void initList(){
     head = new Node();
@@ -24,7 +24,7 @@ void initList(){
     nodeSize = 0;
 }
 
-Node* searchSmallerNode(float data)
+Node* searchSmallerNode(int data)
 {
 	Node* iterateNode = head->next;	
 
@@ -50,7 +50,7 @@ void deltNode(Node *target){
 	nodeSize--;
 }
 
-void addNode(Node *target, float data){
+void addNode(Node *target, int data){
     Node *newNode = new Node();
     newNode->data = data;
 
@@ -80,7 +80,7 @@ void printList(){
     cout << endl << "size::" << nodeSize << endl;
 }
 
-float solve(float M){
+int solve(int M){
     int ret = 0;
 
 	for(;;)
@@ -88,7 +88,7 @@ float solve(float M){
         Node* iterateNode = head->next;
         if(iterateNode == tail) break;
 
-        float remainder = M - iterateNode->data;
+        int remainder = M - iterateNode->data;
         iterateNode = iterateNode->next;
         deltNode(iterateNode->prev);
         ret++;
@@ -96,7 +96,7 @@ float solve(float M){
         if(remainder == 0) continue;
 
         while (iterateNode != tail){
-            if(remainder - iterateNode->data){
+            if(remainder - iterateNode->data >= 0){
                 deltNode(iterateNode);
 
                 break;
@@ -111,14 +111,14 @@ float solve(float M){
 
 int main(){
     initList();
-    float data = 0;
+    int data = 0;
     int M = 0;
 
     cin >> M;
-    if(M > 100000) M = 100000;
+    // if(M > 100000) M = 100000;
 
     while(cin >> data){
-        if(data <= 0 || data > M) continue;
+        // if(data <= 0 || data > M) continue;
         addNode(searchSmallerNode(data), data);
     }
 
