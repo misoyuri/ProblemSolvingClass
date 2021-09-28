@@ -1,5 +1,18 @@
 {
     "files.associations": {
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "ostream": "cpp",
+        "random": "cpp",
+        "vector": "cpp",
+        "xstring": "cpp",
+        "cmath": "cpp",
+        "system_error": "cpp",
+        "type_traits": "cpp",
+        "xtr1common": "cpp",
+        "xiosbase": "cpp",
+        "algorithm": "cpp",
+        "utility": "cpp",
+        "queue": "cpp",
+        "deque": "cpp"
     }
 }
