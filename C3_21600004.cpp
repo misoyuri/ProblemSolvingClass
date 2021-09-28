@@ -1,11 +1,35 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
 #include <queue>
 
 using namespace std;
 
 #define INF 9999999
+
+struct CQueue{
+    int front = 0, rear = 0;
+    int space[40001];
+    int queue_size = 40001;
+    
+    bool empty(){
+        return front == rear;
+    }
+
+    void push(int node){
+        space[rear] = node;
+        rear = (rear+1)%queue_size;
+    }
+    
+    void pop(){
+        space[front] = 0;
+        front = (front+ 1)%queue_size;
+    }
+
+    int top(){
+        return space[front];
+    }
+};
+
 
 vector<int> list[40001];
 int dist[40001];
@@ -19,66 +43,47 @@ void init_dist(){
     }
 }
 
-
-int dijkstra_without_parent(int start){
-    priority_queue<pair<int, int>> q;
-    int dist_sofar = 0;
+void bfs_without_parent(int start){
+    init_dist();
+    queue<int> q;
+    
     int cur_node = 0;
-    int cur_cost = 0;
 
-    q.push({0, start});
+    q.push(start);
     dist[start] = 0;
 
-    // q.push({start, 0});
-    // dist[start] = 0;
-
     while(!q.empty()){
-        dist_sofar = -q.top().first;
-        cur_node = q.top().second;
-        
+        cur_node = q.front();
         q.pop();
-
-        if(dist[cur_node] < dist_sofar) continue;
-
+        
         for(int i=0; i < list[cur_node].size(); i++){
-            cur_cost = dist_sofar + 1;
-
-            if(dist_sofar < dist[list[cur_node][i]]){
-                dist[list[cur_node][i]] = cur_cost;
-                q.push({-cur_cost, list[cur_node][i]});
-                // q.push({list[cur_node][i], -cur_cost});
+            if(dist[cur_node] + 1 < dist[list[cur_node][i]]){
+                dist[list[cur_node][i]] = dist[cur_node] + 1;
+                q.push(list[cur_node][i]);
             }
         }
     }
-    
-    return dist[N];
 
 }
 
-void dijkstra_with_parent(){
-    priority_queue<pair<int, int>> q;
-    int dist_sofar = 0;
+void bfs_with_parent(){
+    init_dist();
+    queue<int> q;
+    
     int cur_node = 0;
-    int cur_cost = 0;
 
-    q.push({1, 0});
+    q.push(1);
     dist[1] = 0;
 
     while(!q.empty()){
-        cur_node = q.top().first;
-        dist_sofar = q.top().second;
-        
+        cur_node = q.front();
         q.pop();
-
-        if(dist[cur_node] < dist_sofar) continue;
-
+        
         for(int i=0; i < list[cur_node].size(); i++){
-            cur_cost = dist_sofar + 1;
-
-            if(dist_sofar < dist[list[cur_node][i]]){
-                dist[list[cur_node][i]] = cur_cost;
+            if(dist[cur_node] + 1 < dist[list[cur_node][i]]){
+                dist[list[cur_node][i]] = dist[cur_node] + 1;
                 parent[list[cur_node][i]] = cur_node;
-                q.push({list[cur_node][i], cur_cost});
+                q.push(list[cur_node][i]);
             }
         }
     }
@@ -100,21 +105,30 @@ int main(){
         list[city2].push_back(city1);
     }
 
-    init_dist();
-    dijkstra_with_parent();
+    bfs_with_parent();
 
     int dist_12 = dist[2];
-    int offset = dist_12 * p;
+    int aaa = 0;
 
-    init_dist();
-    dijkstra_without_parent(N);
+    int offset = p * dist_12 + q * aaa;
+    dist_12--; aaa++;
 
-    answer = offset + dist[2] * r;
-    
+    bfs_without_parent(N);
+    answer = r * dist[2] + offset;
+
+    // for(int i = 1; i <= N; i++){
+    //     cout << "[" << i << "]->" << parent[i] << " :: " << dist[i] <<endl; 
+    // }
+
     int cur_node = parent[2];
+
     while(1){
-        offset -= p - q;
-        subAnswer = offset + r * dist[cur_node];
+        offset = p * dist_12 + q * aaa;
+        // cout << "[" << cur_node << "] " << r * dist[cur_node] << " + " << p*dist_12 << " + " << aaa * q << endl;
+        dist_12--; aaa++;
+        subAnswer = r * dist[cur_node] + offset ;
+
+
         if(answer > subAnswer) answer = subAnswer;
         if(cur_node == 1) break;
         cur_node = parent[cur_node];
