@@ -1,137 +1,71 @@
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 
-typedef struct Node{
-    Node *prev = NULL;
-    Node *next = NULL;
-    int data = 0;
-    int count = 0;
-};
+int weights[1000001]{0, };
 
-Node *head;
-Node *tail;
+int weights_size = 0;
+int M = 0;
 
-void initList(){
-    head = new Node();
-    tail = new Node();
-
-    head->next = tail;
-    head->prev = head;
-    tail->next = tail;
-    tail->prev = head;
-
+void SWAP(int *a, int *b){
+    int temp = *a;
+    *a = *b;
+    *b = temp;
 }
 
-Node* searchSmallerNode(int data)
-{
-	Node* iterateNode = head->next;	
+int partition(int left, int right){
+    int pivot = left, i = left, j = right+1;
 
-	while (iterateNode != tail)
-	{
-		if (iterateNode->data <= data)
-		{
-			return iterateNode;
-		}
-		iterateNode = iterateNode->next;
-	}
+    do{
+        do{
+            i++;
+        } while(weights[i] > weights[pivot] && i <= right);       
+        
+        do{
+            j--;
+        }while(weights[j] < weights[pivot] && j >= left);
 
-	return iterateNode;
-}
-
-void deltNode(Node *target){
-	// if (target == head || target == tail)
-	// 	return;
-    if(target->count > 1){ 
-        target->count--;
-        return;    
-    }
-
-	target->next->prev = target->prev;
-	target->prev->next = target->next;
-	free(target);
-}
-
-void addNode(Node *target, int data){
-    if(target->count > 0 && target->data == data){
-        target->count++;
-        return;
-    }
-
-    Node *newNode = new Node();
-    newNode->data = data;
-    newNode->count++;
-    if(target == head){
-        target->next->prev = newNode;
-        newNode->next = target->next;
-        newNode->prev = target;
-        target->next = newNode;
-    }else{
-        target->prev->next = newNode;			
-        newNode->next = target;
-        newNode->prev = target->prev;
-        target->prev = newNode;
-    }
-
-}
-
-void printList(){
-    Node* iterateNode = head->next;	
-
-    while (iterateNode != tail){
-        cout << "[" << iterateNode->data << "::" << iterateNode->count << "] ";
-		iterateNode = iterateNode->next;
-	}
-
-}
-
-int solve(int M){
-    int ret = 0;
-
-	for(;;)
-    {
-        Node* iterateNode = head->next;
-        if(iterateNode == tail) break;
-
-        int remainder = M - iterateNode->data;
-
-        cout << "[" << iterateNode->data << "]";
-
-        iterateNode = iterateNode->next;
-        deltNode(iterateNode->prev);
-        ret++;
-
-        if(remainder == 0) cout << endl;
-        if(remainder == 0) continue;
-
-        while (iterateNode != tail){
-            if(remainder - iterateNode->data >= 0){
-                cout << "[" << iterateNode->data << "]";
-                deltNode(iterateNode);
-                break;
-            }
-            iterateNode = iterateNode->next;
+        if(i < j){
+            SWAP(&weights[i], &weights[j]);
         }
-        cout << endl;
-	}
+    }while(i < j);
 
-    return ret;
+    SWAP(&weights[left], &weights[j]);
+
+    return j;
 }
 
+void quick_sort(int left, int right){
+    if(left < right){
+        int pivot = partition(left, right);
+
+        quick_sort(left, pivot-1);
+        quick_sort(pivot+1, right);
+    }
+}
 int main(){
-    initList();
     int data = 0;
-    int M = 0;
-
-    cin >> M;
-
-    while(cin >> data){
-        addNode(searchSmallerNode(data), data);
+    int answer = 0;
+    scanf("%d", &M);
+    
+    while(cin >> weights[weights_size]){
+        weights_size++;
     }
 
-    
-    // printList();
-    cout << solve(M) << endl;
+    quick_sort(0, weights_size); 
 
+    int rear = weights_size - 1;
+
+    for(int front = 0; front <= rear; front++){
+        answer++;
+
+        if(weights[front] + weights[rear] <= M){
+            rear--;
+        }
+
+    }
+
+    cout << answer;
     return 0;
 }

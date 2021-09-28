@@ -1,10 +1,9 @@
 #include <iostream>
 #include <vector>
-#include <queue>
 
 using namespace std;
 
-#define INF 9999999
+#define INF 2147483646
 
 struct CQueue{
     int front = 0, rear = 0;
@@ -31,9 +30,9 @@ struct CQueue{
 };
 
 
-vector<int> list[40001];
-int dist[40001];
-int parent[40001]{0, };
+vector<int> list[40010];
+int dist[40010];
+int parent[40010]{0, };
 
 int p, q, r, N, M;
 
@@ -43,51 +42,70 @@ void init_dist(){
     }
 }
 
-void bfs_without_parent(int start){
-    init_dist();
-    queue<int> q;
-    
-    int cur_node = 0;
-
-    q.push(start);
-    dist[start] = 0;
-
-    while(!q.empty()){
-        cur_node = q.front();
-        q.pop();
-        
-        for(int i=0; i < list[cur_node].size(); i++){
-            if(dist[cur_node] + 1 < dist[list[cur_node][i]]){
-                dist[list[cur_node][i]] = dist[cur_node] + 1;
-                q.push(list[cur_node][i]);
-            }
-        }
+void print_list(){
+    for(int i = 1; i <= N; i++){
+        cout << "[" << i << "]->" << parent[i] << " :: " << dist[i] <<endl; 
     }
-
 }
 
-void bfs_with_parent(){
+void bfs_from_N(){
     init_dist();
-    queue<int> q;
+    bool *visited = new bool[N+1]{false, };
     
-    int cur_node = 0;
+    CQueue q;
 
+    q.push(N);
+    visited[N] = true;
+    dist[N] = 0;
+    
+    while(!q.empty()){
+        int current_node = q.top();
+        q.pop();
+
+        for(int i = 0; i < list[current_node].size(); i++){
+            int adj_node = list[current_node][i];
+
+            // if(!visited[adj_node]){
+            //     visited[adj_node] = true;
+                if(dist[adj_node] > dist[current_node] + 1){
+                    dist[adj_node] = dist[current_node] + 1;
+                    q.push(adj_node);
+
+            }
+        }
+    }
+}
+
+int bfs_how_far_2_from_1(){
+    init_dist();
+    bool *visited = new bool[N+1]{false, };
+    
+    CQueue q;
+
+    // visited[1] = true;
     q.push(1);
     dist[1] = 0;
-
+    
     while(!q.empty()){
-        cur_node = q.front();
+        int current_node = q.top();
         q.pop();
-        
-        for(int i=0; i < list[cur_node].size(); i++){
-            if(dist[cur_node] + 1 < dist[list[cur_node][i]]){
-                dist[list[cur_node][i]] = dist[cur_node] + 1;
-                parent[list[cur_node][i]] = cur_node;
-                q.push(list[cur_node][i]);
+
+        if(current_node == 2) return dist[2];
+
+        for(int i = 0; i < list[current_node].size(); i++){
+            int adj_node = list[current_node][i];
+
+            // if(!visited[adj_node]){
+                // visited[adj_node] = true;
+            if(dist[adj_node] > dist[current_node] + 1){
+                q.push(adj_node);
+                parent[adj_node] = current_node;
+                dist[adj_node] = dist[current_node] + 1;
             }
         }
     }
 
+    return -1;
 }
 
 int main(){
@@ -95,7 +113,7 @@ int main(){
 	cin.tie(nullptr);
     
     int city1, city2;
-    int answer = 0;
+    long long answer = 10e16;
     int subAnswer = 0;
     cin >> p >> q >> r >> N >> M;
 
@@ -105,34 +123,30 @@ int main(){
         list[city2].push_back(city1);
     }
 
-    bfs_with_parent();
 
-    int dist_12 = dist[2];
-    int aaa = 0;
+    int dist_from_1 = bfs_how_far_2_from_1();
+    int dist_from_2 = 0;
+    
+    // cout << "dist12::" << dist_from_1 << endl;
 
-    int offset = p * dist_12 + q * aaa;
-    dist_12--; aaa++;
-
-    bfs_without_parent(N);
-    answer = r * dist[2] + offset;
-
-    // for(int i = 1; i <= N; i++){
-    //     cout << "[" << i << "]->" << parent[i] << " :: " << dist[i] <<endl; 
-    // }
-
-    int cur_node = parent[2];
-
-    while(1){
-        offset = p * dist_12 + q * aaa;
-        // cout << "[" << cur_node << "] " << r * dist[cur_node] << " + " << p*dist_12 << " + " << aaa * q << endl;
-        dist_12--; aaa++;
-        subAnswer = r * dist[cur_node] + offset ;
+    bfs_from_N();
 
 
-        if(answer > subAnswer) answer = subAnswer;
-        if(cur_node == 1) break;
+
+    long long offset = p * dist_from_1 + q * dist_from_2;
+    int cur_node = 0;
+    parent[0] = 2;
+
+    do{
         cur_node = parent[cur_node];
-    }
+        offset = p * dist_from_1 + q * dist_from_2;
+        subAnswer = r * dist[cur_node] + offset;
+        cout << "cur::" << cur_node << " - " << subAnswer << endl;
+        cout << "\t" << p * dist_from_1 << " " << q * dist_from_2 << " " << r * dist[cur_node] <<endl;
+        dist_from_1--; dist_from_2++;
+
+        if(subAnswer < answer) answer = subAnswer;
+    }while(cur_node != 1);
 
     cout << answer << endl;
     return 0;
