@@ -30,37 +30,27 @@ struct CQueue{
 };
 
 
-vector<int> *list;
-int *dist;
-int *parent;
+vector<int> list[40001];
+int dist[4][40001];
 
 int p, q, r, N, M;
 
-void init_dist(){
-    for(int i = 1; i <= N; i++){
-        dist[i] = INF;
-    }
-}
-
-void init_parent(){
-    for(int i = 1; i <= N; i++){
-        parent[i] = -1;
-    }
-}
-
 void print_list(){
     for(int i = 1; i <= N; i++){
-        cout << "[" << i << "]->" << parent[i] << " :: " << dist[i] <<endl; 
+        printf("%-5d", dist[i]);
+        cout << endl;
     }
 }
 
-void bfs_from_N(){
-    init_dist();
+void bfs(int dist_idx, int start){
+    for(int i = 1; i <= N; i++){
+        dist[dist_idx][i] = INF;
+    }
     
     CQueue q;
 
-    q.push(N);
-    dist[N] = 0;
+    q.push(start);
+    dist[dist_idx][start] = 0;
     
     while(!q.empty()){
         int current_node = q.top();
@@ -69,8 +59,8 @@ void bfs_from_N(){
         for(size_t i = 0; i < list[current_node].size(); i++){
             int adj_node = list[current_node][i];
 
-            if(dist[adj_node] > dist[current_node] + 1){
-                dist[adj_node] = dist[current_node] + 1;
+            if(dist[dist_idx][adj_node] > dist[dist_idx][current_node] + 1){
+                dist[dist_idx][adj_node] = dist[dist_idx][current_node] + 1;
                 q.push(adj_node);
 
             }
@@ -78,31 +68,6 @@ void bfs_from_N(){
     }
 }
 
-int bfs_how_far_2_from_1(){
-    init_dist();
-    init_parent();
-    CQueue q;
-
-    q.push(1);
-    dist[1] = 0;
-    
-    while(!q.empty()){
-        int current_node = q.top();
-        q.pop();
-
-        for(size_t i = 0; i < list[current_node].size(); i++){
-            int adj_node = list[current_node][i];
-
-            if(dist[adj_node] > dist[current_node] + 1){
-                dist[adj_node] = dist[current_node] + 1;
-                parent[adj_node] = current_node;
-                q.push(adj_node);
-            }
-        }
-    }
-
-    return dist[2];
-}
 
 int main(){
     ios_base::sync_with_stdio(false);
@@ -113,36 +78,20 @@ int main(){
     long long subAnswer = 0;
     cin >> p >> q >> r >> N >> M;
 
-    list = new vector<int>[N+1];
-    dist = new int[N+1];
-    parent = new int[N+1];
-
     for(int i = 0; i < M; i++){
         cin >> city1 >> city2;
         list[city1].push_back(city2);
         list[city2].push_back(city1);
     }
-
-
-    long long dist_from_1 = bfs_how_far_2_from_1();
-    long long dist_from_2 = 0;
-    // cout << "bfs_how_far_2_from_1s() out" << endl;
-    // print_list();
     
-    bfs_from_N();
-    // cout << "bfs_from_N() out" << endl;
-    long long offset = p * dist_from_1 + q * dist_from_2;
-    int cur_node = 0;
-    parent[0] = 2;
-    do{
-        cur_node = parent[cur_node];
-        // cout << "cur node is " << cur_node <<endl; 
-        offset = p * dist_from_1 + q * dist_from_2;
-        subAnswer = r * dist[cur_node] + offset;
-        dist_from_1--; dist_from_2++;
+    bfs(0, 1);
+    bfs(1, 2);
+    bfs(2, N);
 
+    for(int i = N; i <= N; i++){
+        subAnswer = dist[0][i] * p + dist[1][i] * q + dist[2][i] * r;
         if(subAnswer < answer) answer = subAnswer;
-    }while(cur_node != 1);
+    }
 
     cout << answer << endl;
     return 0;
