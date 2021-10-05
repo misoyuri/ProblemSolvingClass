@@ -2,63 +2,86 @@
 
 using namespace std;
 
-#define INF 2147483646
+#define INF 2000000010
 
 struct Function{
-    int start;
-    int end;
-    int val;
+    long start;
+    long end;
+    long val;
 };
 
 Function *f, *g;
 int f_size, g_size;
 int p, q;
 
-long long calc_max_function_ret(int a, int l, int val){
-    if(l > q) l = q+1;
-    long long range = abs(l == a ? 1 : l-a);
-    printf("   a:%d, l:%d | val: %d => %lld     ", a, l, val, range*val);
-    return range * val;
+bool debug = true;
+
+long long calc(Function func, long val){
+    long long ret = 0;
+    ret = (long long)func.end - func.start;
+    if(ret == 0) ret = 1;
+    ret = ret * val;
+    return ret;
 }
 
 int solve(){
-    long long ret = 0, subSum = 0;
-    int idx_f = 0, idx_g = 0;
+    long long ret = 0;
+    int f_idx = 0, g_idx = 0;
+    while(f[f_idx].end <= p) f_idx++;
+    while(g[g_idx].end <= p) g_idx++;
 
-    while(p > f[idx_f].end) {idx_f++;} 
-    while(p > g[idx_g].end) {idx_g++;} 
+    f[f_idx].start = p;
+    g[g_idx].start = p;
 
-    f[idx_f].start = p;
-    g[idx_g].start = p;
+    while(f_idx <= f_size && g_idx <= g_size){
+        
 
-    while(idx_f <= f_size && idx_g <= g_size){
-        // if(f[idx_f].end > q) f[idx_f].end = q;
-        // if(g[idx_g].end > q) g[idx_g].end = q;
-        printf("f[%d, %d) | g[%d, %d)", f[idx_f].start, f[idx_f].end, g[idx_g].start, g[idx_g].end);
-        if(f[idx_f].end > g[idx_g].end){
-            if(f[idx_f].val > g[idx_g].val){
-                cout << "  1  ]" ;
-                ret += calc_max_function_ret(f[idx_f].start, g[idx_g].end, f[idx_f].val);
+        if(f[f_idx].start == g[g_idx].start && f[f_idx].end == g[g_idx].end && g[g_idx].end > q) {
+            f[f_idx].end = q + 1;
+            g[g_idx].end = q + 1;
+        }
+        if(debug) printf("f[%15d, %15d) g[%15d, %15d) :: ", f[f_idx].start, f[f_idx].end, g[g_idx].start, g[g_idx].end);
+       
+        if(f[f_idx].start > f[f_idx].end || g[g_idx].start > g[g_idx].end) break;
+        if(f[f_idx].start > q || g[g_idx].start > q) break;
+
+        if(f[f_idx].end < g[g_idx].end){
+            if(f[f_idx].val > g[g_idx].val){ 
+                if(debug) printf("[1] %lld\n", calc(f[f_idx], f[f_idx].val));
+                ret += calc(f[f_idx], f[f_idx].val);
             }else{
-                cout << "  2  ]" ;
-                ret += calc_max_function_ret(g[idx_g].start, g[idx_g].end, g[idx_g].val);
-            }
-            f[idx_f].start = g[idx_g].end;
-            idx_g++;
+                if(debug) printf("[2] %lld\n", calc(f[f_idx], g[g_idx].val));
+                ret += calc(f[f_idx], g[g_idx].val);
+            } 
+
+            g[g_idx].start = f[f_idx].end;
+            f_idx++;
+        }else if(f[f_idx].end > g[g_idx].end){
+            if(f[f_idx].val > g[g_idx].val){
+                if(debug) printf("[3] %lld\n", calc(g[g_idx], f[f_idx].val));
+                ret += calc(g[g_idx], f[f_idx].val);
+            }else{
+                if(debug) printf("[4] %lld\n", calc(g[g_idx], g[g_idx].val));
+                ret += calc(g[g_idx], g[g_idx].val);
+            } 
+
+            f[f_idx].start = g[g_idx].end;
+            g_idx++;
         }else{
-            if(f[idx_f].val > g[idx_g].val){
-                cout << "  3  ]" ;
-                ret += calc_max_function_ret(f[idx_f].start, f[idx_f].end, f[idx_f].val);
-            }else{
-                cout << "  4  ]" ;
-                ret += calc_max_function_ret(g[idx_g].start, f[idx_f].end, g[idx_g].val);
+            if(f[f_idx].val > g[g_idx].val){ 
+                if(debug) printf("[5] %lld\n", calc(g[g_idx], f[f_idx].val));
+                ret += calc(g[g_idx], f[f_idx].val);
+            }else {
+                if(debug) printf("[6] %lld\n", calc(g[g_idx], g[g_idx].val));
+                ret += calc(g[g_idx], g[g_idx].val);
             }
-            g[idx_g].start = f[idx_f].end;
-            idx_f++;
+            g_idx++;
+            f_idx++;
         }
         ret %= 10007;
-        printf("=> %lld\n", ret);
+
     }
+
 
     return ret;
 }
@@ -96,10 +119,10 @@ void init_functions(){
 }
 
 void print_functions(){
-        for(int i = 0; i <= f_size; i++){
+    cout << "================================================" << endl;
+    for(int i = 0; i <= f_size; i++){
         printf("f[%d]:: start: %d | end: %d | val: %d\n", i, f[i].start, f[i].end, f[i].val);
     }
-
     cout << "================================================" << endl;
     for(int i = 0; i <= g_size; i++){
         printf("g[%d]:: start: %d | end: %d | val: %d\n", i, g[i].start, g[i].end, g[i].val);
@@ -109,9 +132,11 @@ void print_functions(){
 
 int main(){
     init_functions();
-    print_functions();
+    if(debug) print_functions();
 
-    cout << solve() << endl;
+    long long answer = solve();
+    printf("%lld", answer) ;
 
+    return 0;
 }
 
