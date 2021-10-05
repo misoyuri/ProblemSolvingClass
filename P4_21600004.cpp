@@ -14,13 +14,15 @@ Function *f, *g;
 int f_size, g_size;
 int p, q;
 
-bool debug = true;
+bool debug = false;
 
 long long calc(Function func, long val){
     long long ret = 0;
+    if(func.end > q) func.end = q+1;
     ret = (long long)func.end - func.start;
     if(ret == 0) ret = 1;
     ret = ret * val;
+    // printf("\n val: %ld\n", val);
     return ret;
 }
 
@@ -34,15 +36,7 @@ int solve(){
     g[g_idx].start = p;
 
     while(f_idx <= f_size && g_idx <= g_size){
-        
-
-        if(f[f_idx].start == g[g_idx].start && f[f_idx].end == g[g_idx].end && g[g_idx].end > q) {
-            f[f_idx].end = q + 1;
-            g[g_idx].end = q + 1;
-        }
         if(debug) printf("f[%15d, %15d) g[%15d, %15d) :: ", f[f_idx].start, f[f_idx].end, g[g_idx].start, g[g_idx].end);
-       
-        if(f[f_idx].start > f[f_idx].end || g[g_idx].start > g[g_idx].end) break;
         if(f[f_idx].start > q || g[g_idx].start > q) break;
 
         if(f[f_idx].end < g[g_idx].end){
