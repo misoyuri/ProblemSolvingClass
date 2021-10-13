@@ -10,37 +10,45 @@ struct Pair{
 };
 
 int n = 0;
-bool map[4][4]{false, };
+int map[4][4]{0, };
 bool poly[5][4][4]{false, };
 Pair pairs[5];
 
 bool is_terminated = false;
 
-void print_map(){
+void print_map_exit(bool flag = false){
     for(int i = 0; i < 4; i++) {
         for(int j = 0; j < 4; j++){
             printf("%d ", map[i][j]);
         }
         printf("\n");
     }
-    printf("\n\n");
+    if(flag) exit(0);
+    else cout << endl;
 }
 
-void print_map_exit(){
-    for(int i = 0; i < 4; i++) {
-        for(int j = 0; j < 4; j++){
-            printf("%d ", map[i][j]);
+bool check_square(){
+    int width = 4;
+    int height = 4;
+
+    for(int i = 0; i < MAP_SIZE; i++){
+        for(int j = 0; j < MAP_SIZE; j++){
+            if(map[i][j] == 0){
+                width  = width < j ? width : j;
+                height = height < i ? height : i;
+            }
         }
-        printf("\n");
     }
-    exit(0);
+    
+    printf("height::%d | width::%d\n", height, width);
+    return (height == width);
 }
 
 void del_poly(int idx_poly, int map_h, int map_w){
     for(int h = 0; h < pairs[idx_poly].h; h++){
         for(int w = 0; w < pairs[idx_poly].w; w++){
             if(poly[idx_poly][h][w]){
-                map[h + map_h][w + map_w] =  false;
+                map[h + map_h][w + map_w] =  0;
             }
         }
     }    
@@ -56,31 +64,39 @@ bool sign_poly(int idx_poly, int map_y, int map_x){
         if(MAP_SIZE <= h + map_y) return false;
         for(int w = 0; w < width; w++){
             if(MAP_SIZE <= w + map_x) return false;
-            if(map[h + map_y][w + map_x] == true && poly[idx_poly][h][w] == true ) return false;
+            if(map[h + map_y][w + map_x] != 0 && poly[idx_poly][h][w] == true ) return false;
         }
     }
 
     for(int h = 0; h < height; h++){
         for(int w = 0; w < width; w++){
             if(poly[idx_poly][h][w]){
-                map[h + map_y][w + map_x] =  true;
+                map[h + map_y][w + map_x] =  idx_poly + 1;
             }
         }
     }
-    cout << "Sign:: " << idx_poly <<endl;
-    print_map();
+    cout << "Sign:: " << idx_poly + 1 <<endl;
+    print_map_exit();
     return true;
 }
 
 void solve(int idx_poly){
     if(idx_poly >= n) return;
+
     bool is_signed = false;
-    // cout << "Solve :: "<< idx_poly << endl;
+
     for(int i = 0; i < MAP_SIZE; i++){
         for(int j = 0; j < MAP_SIZE; j++){
             is_signed = sign_poly(idx_poly, i, j);
 
-            if(idx_poly == 3 && is_signed) print_map_exit(); 
+            if(idx_poly == n - 1 && is_signed){
+                is_terminated = check_square();
+                if(is_terminated){
+                    print_map_exit(true);
+                    return;
+                }
+            }
+
             if(is_signed){
                 solve(idx_poly+1);
                 del_poly(idx_poly, i, j);
@@ -105,18 +121,8 @@ int main(){
 
 
     solve(0);
-    printf("No solution possible");
-    // for(int i = 0; i < n; i++){
-    //     solve(map, i);
-    // }
+    if(!is_terminated){
+        printf("No solution possible");
+    }
 
-    // for(int i = 0; i < n; i++) {
-    //     for(int j = 0; j < pairs[i].h; j++){
-    //         for(int k = 0; k < pairs[i].w; k++){
-    //             printf("%d ", poly[i][j][k]);
-    //         }
-    //         cout << endl;
-    //     }
-    //     cout << endl;
-    // }
 }
