@@ -1,7 +1,6 @@
 #include <iostream>
 
-#define MAP_SIZE 4
-
+#define MAP_SIZE 8
 using namespace std;
 
 struct Pair{
@@ -10,29 +9,30 @@ struct Pair{
 };
 
 int n = 0;
-int map[4][4]{0, };
+int map[MAP_SIZE + 1][MAP_SIZE + 1]{0, };
 bool poly[5][4][4]{false, };
 Pair pairs[5];
+
+int square[MAP_SIZE] = {1 * 2, 4 * 2, 9 * 2, 16 * 2, 25 * 2, 36 * 2, 49 * 2, 64 * 2};
 
 int print_size = 0;
 
 bool is_terminated = false;
 
-void print_map_exit(bool flag = false){
-    for(int i = 0; i < 4; i++) {
-        for(int j = 0; j < 4; j++){
+void print_map_exit(){
+    for(int i = 0; i < print_size; i++) {
+        for(int j = 0; j < print_size-1; j++){
             printf("%d ", map[i][j]);
         }
-        printf("\n");
+        printf("%d\n", map[i][print_size-1]);
     }
-    if(flag) exit(0);
-    else cout << endl;
 }
 
 bool check_square(){
-    int row_info[MAP_SIZE] = {0, };
-    int col_info[MAP_SIZE] = {0, };
-    print_size = 0;
+    int row_info[MAP_SIZE + 1] = {0, };
+    int col_info[MAP_SIZE + 1] = {0, };
+    int sum = 0;
+    print_size = 1;
 
     for(int i = 0; i < MAP_SIZE; i++){
         for(int j = 0; j < MAP_SIZE; j++){
@@ -45,9 +45,11 @@ bool check_square(){
 
     for(int i = 0; i < MAP_SIZE; i++){
         if(row_info[i] != col_info[i]) return false;
-        print_size = row_info[i] > print_size ? row_info[i] : print_size;
+        if(row_info[i] != row_info[i + 1] && row_info[i + 1] != 0) return false;
+        if(col_info[i] != col_info[i + 1] && row_info[i + 1] != 0) return false;
+        if(print_size < row_info[i]) print_size = row_info[i]++;
     }
-    
+
     return true;
 }
 
@@ -87,6 +89,7 @@ bool assign_poly(int idx_poly, int map_y, int map_x){
 
 void solve(int idx_poly){
     if(idx_poly >= n) return;
+    if(is_terminated) return;
 
     bool is_signed = false;
 
@@ -97,11 +100,12 @@ void solve(int idx_poly){
             if(idx_poly == n - 1 && is_signed){
                 is_terminated = check_square();
                 if(is_terminated){
-                    print_map_exit(true);
+                    print_map_exit();
                     return;
                 }
             }
 
+            if(is_terminated) return;
             if(is_signed){
                 solve(idx_poly+1);
                 del_poly(idx_poly, i, j);
@@ -127,7 +131,8 @@ int main(){
 
     solve(0);
     if(!is_terminated){
-        printf("No solution possible");
+        printf("No solution possible\n");
     }
 
+    return 0;
 }
