@@ -1,6 +1,7 @@
 #include <iostream>
 
-#define MAP_SIZE 8
+#define MAX_SIZE 8
+
 using namespace std;
 
 struct Pair{
@@ -9,45 +10,31 @@ struct Pair{
 };
 
 int n = 0;
-int map[MAP_SIZE + 1][MAP_SIZE + 1]{0, };
+int MAP_SIZE = 0;
+int **map;
 bool poly[5][4][4]{false, };
 Pair pairs[5];
 
-int square[MAP_SIZE] = {1 * 2, 4 * 2, 9 * 2, 16 * 2, 25 * 2, 36 * 2, 49 * 2, 64 * 2};
-
-int print_size = 0;
+int square[MAX_SIZE] = {1, 4, 9, 16, 25, 36, 49, 64};
 
 bool is_terminated = false;
 
 void print_map_exit(){
-    for(int i = 0; i < print_size; i++) {
-        for(int j = 0; j < print_size-1; j++){
+    for(int i = 0; i < MAP_SIZE; i++) {
+        for(int j = 0; j < MAP_SIZE-1; j++){
             printf("%d ", map[i][j]);
         }
-        printf("%d\n", map[i][print_size-1]);
+        printf("%d\n", map[i][MAP_SIZE-1]);
     }
 }
 
 bool check_square(){
-    int row_info[MAP_SIZE + 1] = {0, };
-    int col_info[MAP_SIZE + 1] = {0, };
-    int sum = 0;
-    print_size = 1;
-
     for(int i = 0; i < MAP_SIZE; i++){
         for(int j = 0; j < MAP_SIZE; j++){
-            if(map[i][j] != 0){
-                row_info[j]++;
-                col_info[i]++;
+            if(map[i][j] == 0){
+                return false;
             }
         }
-    }
-
-    for(int i = 0; i < MAP_SIZE; i++){
-        if(row_info[i] != col_info[i]) return false;
-        if(row_info[i] != row_info[i + 1] && row_info[i + 1] != 0) return false;
-        if(col_info[i] != col_info[i + 1] && row_info[i + 1] != 0) return false;
-        if(print_size < row_info[i]) print_size = row_info[i]++;
     }
 
     return true;
@@ -82,8 +69,7 @@ bool assign_poly(int idx_poly, int map_y, int map_x){
             }
         }
     }
-    // cout << "Sign:: " << idx_poly + 1 <<endl;
-    // print_map_exit();
+
     return true;
 }
 
@@ -117,6 +103,7 @@ void solve(int idx_poly){
 
 int main(){
     cin >> n;
+    int total_blocks = 0;
 
     for(int i = 0; i < n; i++) {
         cin >> pairs[i].h >> pairs[i].w;
@@ -124,13 +111,28 @@ int main(){
         for(int j = 0; j < pairs[i].h; j++){
             for(int k = 0; k < pairs[i].w; k++){
                 cin >> poly[i][j][k];
+                if(poly[i][j][k] == 1) total_blocks++;
             }
         }
     }
 
+    bool is_possible = false;
 
-    solve(0);
-    if(!is_terminated){
+    for(int i = 0; i < MAX_SIZE; i++){
+        if(total_blocks == square[i]){
+            MAP_SIZE = i+1;
+            is_possible = true;
+            break;
+        }
+    }
+
+    map = new int*[MAP_SIZE];
+    for(int i = 0; i < MAP_SIZE; i++) map[i] = new int[MAP_SIZE]{0, };
+
+
+    if(is_possible) solve(0);
+
+    if(!is_possible && !is_terminated){
         printf("No solution possible\n");
     }
 
