@@ -88,8 +88,9 @@ int main(){
     bfs(1, 2);
     bfs(2, N);
 
-    for(int i = N; i <= N; i++){
+    for(int i = 1; i <= N; i++){
         subAnswer = dist[0][i] * p + dist[1][i] * q + dist[2][i] * r;
+        // printf("%d * %d + %d * %d + %d * %d = %d\n", dist[0][i], p, dist[1][i], q, dist[2][i], r, subAnswer);
         if(subAnswer < answer) answer = subAnswer;
     }
 
