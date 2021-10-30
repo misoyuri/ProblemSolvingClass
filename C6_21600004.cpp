@@ -2,73 +2,92 @@
 
 using namespace std;
 
-#define MAX_INT 2147483647
 #define DEBUG_MODE false
 
 int deck[50001]{0, };
-int debug_deck[50001]{0, 1};
+
+int lis_deck[50001]{0, 1};
+int lis_size[50001]{0, 1};
+
+int lds_deck[50001]{0, 1};
+int lds_size[50001]{0, 1};
+
 int N = 0;
 
-int max_score = 0;
-int lower_card = MAX_INT;
-bool is_ascending = true;
-
-void print_debug_log(int score){
-    for(int i = 0; i < score; i++){
-        printf("%d(%d)", deck[debug_deck[i]], debug_deck[i]);
-        if(i != score - 1){
-            printf("->");
+int BS(int *search_deck, int left, int right, int target){
+    while(left < right){
+        int mid = (left + right) / 2;
+        if(search_deck[mid] < target){
+            left = mid + 1;
         }else{
-            printf("\n");
+            right = mid;
         }
     }
-}
 
-void dfs(int card_seq, int score, int selected_card){
-    if(card_seq == N){
-        // if(max_score < score) 
-        if(DEBUG_MODE) print_debug_log(score);
-        max_score = max(max_score, score);
-        return;
-    }
-
-    dfs(card_seq + 1, score, selected_card);
-
-    if(score == 0){
-        if(DEBUG_MODE) debug_deck[score] = card_seq;
-        is_ascending = true;
-        dfs(card_seq + 1, score + 1, deck[card_seq]);
-    }else{
-        if(is_ascending == true){
-            if(selected_card < deck[card_seq]){
-                if(DEBUG_MODE) debug_deck[score] = card_seq;
-                dfs(card_seq + 1, score + 1, deck[card_seq]);
-            }else if(selected_card > deck[card_seq]){
-                lower_card = deck[card_seq];
-                is_ascending = false;
-                if(DEBUG_MODE) debug_deck[score] = card_seq;
-                dfs(card_seq + 1, score + 1, deck[card_seq]);
-
-                is_ascending = true;
-            }
-        }
-        
-        if(is_ascending == false){
-            if(selected_card > deck[card_seq]){
-                if(DEBUG_MODE) debug_deck[score] = card_seq;
-                dfs(card_seq + 1, score + 1, deck[card_seq]);
-            }    
-        }
-    }
+    return right;
 }
 
 int main(){
+    int real_N = 1;
+    int temp = 0;
     cin >> N;
-    for(int i = 0; i < N; i++){
-        cin >> deck[i];
+
+    cin >> deck[0];
+    for(int i = 1; i < N; i++){
+        cin >> temp;
+        if(deck[real_N - 1] != temp){
+            deck[real_N] = temp;
+            real_N++;
+        }
     }
-    // cout << "---------------" << endl;
-    dfs(0, 0, 0);
-    cout << max_score << endl;
-    // cout << "ret::" << max_score << endl;
+    N = real_N;
+
+    int idx_lis_deck = 0;
+
+    for(int idx_deck = 0; idx_deck < N; idx_deck++){
+        if(idx_lis_deck == 0 || lis_deck[idx_lis_deck - 1] < deck[idx_deck]){
+            lis_deck[idx_lis_deck] = deck[idx_deck];
+            idx_lis_deck++;
+        }else{
+            int lis_target_pos = BS(lis_deck, 0, idx_lis_deck - 1, deck[idx_deck]);
+            lis_deck[lis_target_pos] = deck[idx_deck];
+        }
+        lis_size[idx_deck] = idx_lis_deck;
+    }
+
+    // cout << "------------LIS--------------" << endl;
+    // for(int i = 0 ; i < N; i++){
+    //     cout << i << "] " << lis_size[i] << endl; 
+    // }
+    int idx_lds_deck = 0;
+
+    for(int idx_deck = N - 1 ; idx_deck >= 0; idx_deck--){
+        if(idx_lds_deck == 0 || lds_deck[idx_lds_deck - 1] < deck[idx_deck]){
+            lds_deck[idx_lds_deck] = deck[idx_deck];
+            idx_lds_deck++;
+        }else{
+            int lds_target_pos = BS(lds_deck, 0, idx_lds_deck - 1, deck[idx_deck]);
+            lds_deck[lds_target_pos] = deck[idx_deck];
+        }
+        lds_size[idx_deck] = idx_lds_deck;
+    }
+
+    // cout << "------------LDS-------------" << endl;
+    // for(int i = 0 ; i < N; i++){
+    //     cout << i << "] " << lds_size[i] << endl; 
+    // }
+
+    // cout << "============HAP============" << endl;
+    // for(int i = 0 ; i < N; i++){
+    //     cout << i << "] " << lds_size[i] + lis_size[i] - 1 << endl; 
+    // }
+
+    int max_cards = 0;
+    for(int i = 0 ; i < N; i++){
+        if(max_cards < lis_size[i] + lds_size[i] - 1) max_cards = lis_size[i] + lds_size[i] - 1;
+    }
+
+    cout << max_cards << endl;
+
+    return 0;
 }

@@ -14,15 +14,14 @@ Function *f, *g;
 int f_size, g_size;
 int p, q;
 
-bool debug = false;
-
 long long calc(Function func, long val){
-    long long ret = 0;
     if(func.end > q) func.end = q+1;
-    ret = (long long)func.end - func.start;
+
+    long long ret = (long long)func.end - func.start;
+
     if(ret == 0) ret = 1;
     ret = ret * val;
-    // printf("\n val: %ld\n", val);
+
     return ret;
 }
 
@@ -36,15 +35,12 @@ int solve(){
     g[g_idx].start = p;
 
     while(f_idx <= f_size && g_idx <= g_size){
-        if(debug) printf("f[%15d, %15d) g[%15d, %15d) :: ", f[f_idx].start, f[f_idx].end, g[g_idx].start, g[g_idx].end);
         if(f[f_idx].start > q || g[g_idx].start > q) break;
 
         if(f[f_idx].end < g[g_idx].end){
             if(f[f_idx].val > g[g_idx].val){ 
-                if(debug) printf("[1] %lld\n", calc(f[f_idx], f[f_idx].val));
                 ret += calc(f[f_idx], f[f_idx].val);
             }else{
-                if(debug) printf("[2] %lld\n", calc(f[f_idx], g[g_idx].val));
                 ret += calc(f[f_idx], g[g_idx].val);
             } 
 
@@ -52,10 +48,8 @@ int solve(){
             f_idx++;
         }else if(f[f_idx].end > g[g_idx].end){
             if(f[f_idx].val > g[g_idx].val){
-                if(debug) printf("[3] %lld\n", calc(g[g_idx], f[f_idx].val));
                 ret += calc(g[g_idx], f[f_idx].val);
             }else{
-                if(debug) printf("[4] %lld\n", calc(g[g_idx], g[g_idx].val));
                 ret += calc(g[g_idx], g[g_idx].val);
             } 
 
@@ -63,19 +57,15 @@ int solve(){
             g_idx++;
         }else{
             if(f[f_idx].val > g[g_idx].val){ 
-                if(debug) printf("[5] %lld\n", calc(g[g_idx], f[f_idx].val));
                 ret += calc(g[g_idx], f[f_idx].val);
             }else {
-                if(debug) printf("[6] %lld\n", calc(g[g_idx], g[g_idx].val));
                 ret += calc(g[g_idx], g[g_idx].val);
             }
             g_idx++;
             f_idx++;
         }
         ret %= 10007;
-
     }
-
 
     return ret;
 }
@@ -112,21 +102,8 @@ void init_functions(){
     cin >> p >> q;
 }
 
-void print_functions(){
-    cout << "================================================" << endl;
-    for(int i = 0; i <= f_size; i++){
-        printf("f[%d]:: start: %d | end: %d | val: %d\n", i, f[i].start, f[i].end, f[i].val);
-    }
-    cout << "================================================" << endl;
-    for(int i = 0; i <= g_size; i++){
-        printf("g[%d]:: start: %d | end: %d | val: %d\n", i, g[i].start, g[i].end, g[i].val);
-    }
-    cout << "================================================" << endl;
-}
-
 int main(){
     init_functions();
-    if(debug) print_functions();
 
     long long answer = solve();
     printf("%lld", answer) ;
