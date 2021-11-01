@@ -4,24 +4,8 @@
 
 using namespace std;
 
-int pipes[501]{0, };
-int total_ret = 0;
-int divide(int left, int right){
-    if(left - right == 0) return pipes[left];
-    if(right - left == 1) return pipes[left] + pipes[right];
-
-    int ret = INTMAX;
-    for(int i = left ; i < right; i++){
-        int div1 = divide(left, i);
-        int div2 = divide(i+1, right);
-        ret = min(ret, div1 + div2);
-        printf("[%d ~ %d]-> [%d, %d]= %d |  [%d, %d] div2 = %d\n", left, right, pipes[left], pipes[i], div1, pipes[i+1], pipes[right], div2, div1 + div1);
-    }
-    total_ret += ret;
-    return ret;
-}
-
 int main(){
+    int pipes[501]{0, };
     bool used[501]{0, };
     int N = 0;
 
@@ -31,7 +15,62 @@ int main(){
         cin >> pipes[i];
     }
 
-    int ret = divide(0, N-1);
 
-    cout << "ret::" << total_ret << endl;
+    int ret = 0;
+
+    while(unused > 1){
+        int idx_adj_left = 0, idx_adj_right = 1;
+        int min_adj_left = 0, min_adj_right = 1;
+        int loop_min_sum = INTMAX;
+        int current_sum = 0;
+        while(true){
+            while(used[idx_adj_left] == true){
+                idx_adj_left++;
+            }
+
+            idx_adj_right = idx_adj_left + 1;
+
+            while(used[idx_adj_right] == true){
+                idx_adj_right++;
+            }
+
+            if(idx_adj_left >= N - 1 || idx_adj_right >= N) break; 
+
+            current_sum = pipes[idx_adj_left] + pipes[idx_adj_right];
+            if(loop_min_sum > current_sum){
+                min_adj_left = idx_adj_left;
+                min_adj_right = idx_adj_right;
+                loop_min_sum = current_sum;
+            }
+
+            idx_adj_left++;
+            idx_adj_right++;
+        }
+
+        // for(int i = 0; i < N; i++){
+        //     printf("[%3d] ", pipes[i]);
+        // }
+        // cout << endl;
+        // for(int i = 0; i < N; i++){
+        //     printf("[%3d] ", used[i]);
+        // }
+        // cout << endl;
+        // cout << "---------------------------------------------------------------" << endl;
+        pipes[min_adj_left] = pipes[min_adj_left] + pipes[min_adj_right];
+        used[min_adj_right] = true;
+        ret += pipes[min_adj_left];
+        unused--;
+    }
+
+    // for(int i = 0; i < N; i++){
+    //     printf("[%3d] ", pipes[i]);
+    // }
+    //     cout << endl;
+    // for(int i = 0; i < N; i++){
+    //     printf("[%3d] ", used[i]);
+    // }
+    //     cout << endl;
+    // cout << "ret::" << ret << endl;
+
+    cout << ret << endl;
 }
