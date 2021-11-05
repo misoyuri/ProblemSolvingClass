@@ -7,13 +7,12 @@
 #define DAY1 1
 #define DAY2 2
 using namespace std;
+
 int n = 0;
 int m = 0;
 
-int max_level = 0;
 
 pair<int, int> pairs[100001];
-
 vector<int> pills_map[10001];
 
 bool is_valid(int schedule[], int init_pill, int level_){
@@ -41,27 +40,27 @@ bool is_valid(int schedule[], int init_pill, int level_){
     return true;
 }
 
+void reset_schedule(int schedule[]){
+    for(int i = 1; i <= n; i++){
+        schedule[i] = NOT_DETERMINDED;
+    }
+}
+
 int solve(){
 
+    int schedule[10001]{0, };
     for(int i = 0; i < m; i++){
-        int schedule[10001]{0, };
         pills_map[pairs[i].first].push_back(pairs[i].second);
         pills_map[pairs[i].second].push_back(pairs[i].first);
 
-        // int before_day = schedule[pairs[i].first];
-        // schedule[pairs[i].first] = NOT_DETERMINDED;
-        // // schedule[pairs[i].second] = NOT_DETERMINDED;
-
-        if(!is_valid(schedule, pairs[i].first, i)) return i + 1;
-
-
-        // for(int j = 1; j <= n; j++){
-        //     if(schedule[j] == NOT_DETERMINDED && pills_map[schedule[j]].size() != 0)
-        //         if(!is_valid(schedule, j, i)) return i + 1;
-
-        // }
+        if(!is_valid(schedule, pairs[i].first, i)){
+            reset_schedule(schedule);
+            if(!is_valid(schedule, pairs[i].first, i)){
+                return i + 1;
+            }
+        } 
     }
-    return -1000 ;
+    return m ;
 }
 
 int main(){

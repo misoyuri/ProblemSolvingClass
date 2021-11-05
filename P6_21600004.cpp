@@ -47,30 +47,31 @@ int main(){
             idx_adj_right++;
         }
 
-        // for(int i = 0; i < N; i++){
-        //     printf("[%3d] ", pipes[i]);
-        // }
-        // cout << endl;
-        // for(int i = 0; i < N; i++){
-        //     printf("[%3d] ", used[i]);
-        // }
-        // cout << endl;
-        // cout << "---------------------------------------------------------------" << endl;
+        for(int i = 0; i < N; i++){
+            printf("[%3d] ", pipes[i]);
+        }
+        cout << endl;
+        for(int i = 0; i < N; i++){
+            printf("[%3d] ", used[i]);
+        }
+        cout << endl;
+        cout << "---------------------------------------------------------------" << endl;
+        
         pipes[min_adj_left] = pipes[min_adj_left] + pipes[min_adj_right];
         used[min_adj_right] = true;
         ret += pipes[min_adj_left];
         unused--;
     }
 
-    // for(int i = 0; i < N; i++){
-    //     printf("[%3d] ", pipes[i]);
-    // }
-    //     cout << endl;
-    // for(int i = 0; i < N; i++){
-    //     printf("[%3d] ", used[i]);
-    // }
-    //     cout << endl;
-    // cout << "ret::" << ret << endl;
+    for(int i = 0; i < N; i++){
+        printf("[%3d] ", pipes[i]);
+    }
+        cout << endl;
+    for(int i = 0; i < N; i++){
+        printf("[%3d] ", used[i]);
+    }
+        cout << endl;
+    cout << "ret::" << ret << endl;
 
     cout << ret << endl;
 }
