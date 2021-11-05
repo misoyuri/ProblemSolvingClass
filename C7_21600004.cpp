@@ -1,73 +1,67 @@
 #include <iostream>
 #include <vector>
-#define INTMAX 2147483647
+#include <queue>
 
+#define INTMAX 2147483647
+#define NOT_DETERMINDED 0
+#define DAY1 1
+#define DAY2 2
 using namespace std;
 int n = 0;
 int m = 0;
 
 int max_level = 0;
 
-vector<int> day1;
-vector<int> day2;
 pair<int, int> pairs[100001];
 
-bool is_valid(int level_, bool flag){
-    if(flag){
-        for(int i = 0; i <= level_; i++){
-            if(day1[i] == pairs[level_].second) return false;
-            if(day2[i] == pairs[level_].first) return false;
-        }
-    }else{
-        for(int i = 0; i <= level_; i++){
-            if(day1[i] == pairs[level_].first) return false;
-            if(day2[i] == pairs[level_].second) return false;
+vector<int> pills_map[10001];
+
+bool is_valid(int schedule[], int init_pill, int level_){
+    queue<int> q;
+
+    schedule[init_pill] = DAY1;
+
+    q.push(init_pill);
+
+    while(!q.empty()){
+        int current_pill_id = q.front();
+        q.pop();
+
+        for(int i = 0; i < pills_map[current_pill_id].size(); i++){
+            int next_pill_id = pills_map[current_pill_id][i];
+            if(schedule[next_pill_id] == NOT_DETERMINDED){
+                schedule[next_pill_id] = schedule[current_pill_id] == DAY1 ? DAY2 : DAY1;
+                q.push(next_pill_id);
+
+            }else if(schedule[next_pill_id] == schedule[current_pill_id]){
+                return false;
+            }
         }
     }
-    
-
     return true;
 }
 
-void solve(int level_){
-    if(level_ >= m) return;
+int solve(){
+
+    for(int i = 0; i < m; i++){
+        int schedule[10001]{0, };
+        pills_map[pairs[i].first].push_back(pairs[i].second);
+        pills_map[pairs[i].second].push_back(pairs[i].first);
+
+        // int before_day = schedule[pairs[i].first];
+        // schedule[pairs[i].first] = NOT_DETERMINDED;
+        // // schedule[pairs[i].second] = NOT_DETERMINDED;
+
+        if(!is_valid(schedule, pairs[i].first, i)) return i + 1;
 
 
+        // for(int j = 1; j <= n; j++){
+        //     if(schedule[j] == NOT_DETERMINDED && pills_map[schedule[j]].size() != 0)
+        //         if(!is_valid(schedule, j, i)) return i + 1;
 
-    // if(level_ > 0){
-    //     cout << "level::" << level_ + 1 << endl;
-    //     cout << "Day1:: ";
-    //     for(int i = 0; i < level_; i++){
-    //         printf("%d ", day1[i]);
-    //     }
-    //     printf("\nDay2:: ");
-
-    //     for(int i = 0; i < level_; i++){
-    //         printf("%d ", day2[i]);
-    //     }
-    //     printf("\n---------------------------\n");
-    // }
-
-    max_level = max(level_, max_level);
-
-    // first trial
-    day1.push_back(pairs[level_].first);
-    day2.push_back(pairs[level_].second);
-
-    // check valid
-    if(is_valid(level_, true)) solve(level_ + 1);
-    day1.pop_back();
-    day2.pop_back();
-    
-    // second trial
-    day1.push_back(pairs[level_].second);
-    day2.push_back(pairs[level_].first);
-    
-    if(is_valid(level_, false)) solve(level_ + 1);
-    day1.pop_back();
-    day2.pop_back();
-    
-    return;
+        // }
+    }
+    return -1000 ;
 }
 
 int main(){
@@ -78,22 +72,6 @@ int main(){
         cin >> pairs[i].first >> pairs[i].second;
     }
 
-    solve(0);
-
-    cout << max_level + 1 << endl;
+    cout << solve() << endl;
 
 }
-
-
-    // if(level_ > 0 && max_level < level_ + 1){
-    //         cout << "level::" << level_ << endl;
-    //     for(int i = 0; i < level_; i++){
-    //         printf("%d ", day1[i]);
-    //     }
-    //     printf("\n---------------------------\n");
-
-    //     for(int i = 0; i < level_; i++){
-    //         printf("%d ", day2[i]);
-    //     }
-    //     printf("\n---------------------------\n");
-    // }
