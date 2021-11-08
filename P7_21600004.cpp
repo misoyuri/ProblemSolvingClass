@@ -40,40 +40,56 @@ void quick_sort(int *data, int left, int right){
     }
 }
 
-int solve(int *tasks, int n, int m){
+int solve(int *tasks, int n, int d, int m){
     int min_rent = 1;
     int max_rent = m;
 
     int current_rent = (m + 1) / 2;
-
+    int proper_rent = current_rent;
     while(min_rent <= max_rent){
         current_rent = (min_rent + max_rent) / 2;
+
         bool possible = true;
-        int task_day = 1;
-        int task_i = 0;
-        while(task_i < m){
-            for(int i = 0; i < current_rent && task_i < m; i++){
-                if(tasks[task_i] < task_day){
-                    task_i++;
+        int task_days = 0;
+        int task_idx = 0;
+        while(task_idx < m){
+            int i = 0;
+            task_days++;
+            // printf("min: %d | max: %d | cur: %d\n", min_rent, max_rent, current_rent);
+            // printf("%d~%d] ", task_days, task_days + d - 1 );
+            
+            if(task_days > n){
+                possible = false;
+                break;
+            }
+
+            
+            while(i < current_rent){
+                if(task_days <= tasks[task_idx] + d - 1){
+                    if(tasks[task_idx] < task_days + d){
+                        // printf("%d ", tasks[task_idx]);
+                        task_idx++;
+                    }else{
+                        // printf("[%d (false)]", tasks[task_idx]);
+                        break;
+                    }
                 }else{
-                    possible = false;
                     break;
                 }
+                i++;
             }
-            if(!possible) break;
+            // cout << endl;
         }
 
         if(possible){
+            proper_rent = current_rent;
             max_rent = current_rent - 1;
         }else{
             min_rent = current_rent + 1;
         }
-
-        printf("min: %d | max: %d | cur: %d\n", min_rent, max_rent, current_rent);
     }
 
-
-    return min_rent;
+    return proper_rent;
 }
 
 int main(){
@@ -83,10 +99,9 @@ int main(){
 
     for(int i = 0; i < m; i++){
         scanf("%d", &tasks[i]);
-        tasks[i] += 2;
     }
 
     quick_sort(tasks, 0, m-1);
 
-    cout << solve(tasks, n, m) << endl;
+    cout << solve(tasks, n, d, m) << endl;
 }
