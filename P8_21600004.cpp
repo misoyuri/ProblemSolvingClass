@@ -40,4 +40,4 @@ int main(){
 
     sort(person, person + n, comp);
     cout << solve_() << endl;
-}
+} 

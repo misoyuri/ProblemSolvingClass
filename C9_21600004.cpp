@@ -1,5 +1,7 @@
 #include <iostream>
 #include <algorithm>
+#include <vector>
+#include <queue>
 
 #define NOT_YET 0
 using namespace std;
@@ -12,18 +14,35 @@ struct DEVELOPER{
 };
 
 DEVELOPER developers[8000]{{0, 0, 0}, };
+vector<int> relations[8000];
+
 int N = 0;
 
-int solve(){
-    int groups = N;
-    int group_id = 1;
+void find_max_groups(int start_id, int group_id){
+    queue<int> q;
+    q.push(start_id);
+
+    while(!q.empty()){
+        int current_developer_id = q.front();
+        q.pop();
+
+        for(int i = 0; i < relations[current_developer_id].size(); i++){
+            int next_developer_id = relations[current_developer_id][i];
+
+            if(developers[next_developer_id].group == NOT_YET){
+                developers[next_developer_id].group = group_id;
+                q.push(next_developer_id);
+            }
+        }
+    }
+}
+
+void find_relations(){
     bool grouping_flag = false;
+
     for(int i = 0; i < N; i++){
-        grouping_flag = false;
-
         for(int j = i+1; j < N; j++){
-            if(i == j) continue;
-
+            grouping_flag = false;
             if(developers[i].x > developers[j].x && developers[i].y < developers[j].y){
                 grouping_flag = true;
             }else if(developers[i].x < developers[j].x && developers[i].y > developers[j].y){
@@ -31,15 +50,12 @@ int solve(){
             }
 
             if(grouping_flag){
-                // printf("[%d and %d]\n", i, j);
-                groups--;   
+                relations[i].push_back(j);
+                relations[j].push_back(i);
                 grouping_flag = false;                                     
             }
-
         }
     }
-
-    return groups;
 }
 
 int main(){
@@ -49,7 +65,15 @@ int main(){
         cin >> developers[i].x >> developers[i].y;
     }
 
-    cout << solve() << endl;
-
+    find_relations();
+    
+    int groups = 0;
+    for(int i = 0; i < N; i++){
+        if(developers[i].group == NOT_YET){
+            groups++;
+            find_max_groups(i, groups);
+        }
+    }
+    cout << groups << endl;
     return 0;
 }
