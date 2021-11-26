@@ -15,28 +15,25 @@ int calc_weighted_sum(vector<int> targets){
     if(targets.size() > 4) return 0;
 
     int ret = 0;
-    // printf("[");
     for(int i = 0; i < targets.size(); i++){
         ret += weights[targets[i]];
-        // printf("%d ", targets[i]+1);
     }
-    // printf("] %d\n", ret);
     
     return ret;
 }
 
 
 void find_fully_connected(int start_node){
-    vector<int> fully_connected;
+    vector<int> complete_connected_set;
 
-    fully_connected.push_back(start_node);
+    complete_connected_set.push_back(start_node);
 
-    for(int v_id = 0; v_id < N; v_id++){
+    for(int v_id = 0; v_id < N; v_id++){ // N
         bool continue_flag = false;
         bool append_flag = true;
 
-        for(int fc_idx = 0; fc_idx < fully_connected.size(); fc_idx++){
-            if(v_id == fully_connected[fc_idx]){
+        for(int fc_idx = 0; fc_idx < complete_connected_set.size(); fc_idx++){
+            if(v_id == complete_connected_set[fc_idx]){
                 continue_flag = true;
                 break;
             }
@@ -44,10 +41,10 @@ void find_fully_connected(int start_node){
 
         if(continue_flag) continue;
 
-        for(int fc_idx = 0; fc_idx < fully_connected.size(); fc_idx++){
+        for(int fc_idx = 0; fc_idx < complete_connected_set.size(); fc_idx++){ // N-1
             continue_flag = false;
-            for(int adj_cell_to_v_id = 0; adj_cell_to_v_id < cell_relations[v_id].size(); adj_cell_to_v_id++){
-                if(fully_connected[fc_idx] == cell_relations[v_id][adj_cell_to_v_id]){
+            for(int adj_cell_to_v_id = 0; adj_cell_to_v_id < cell_relations[v_id].size(); adj_cell_to_v_id++){ // N-1
+                if(complete_connected_set[fc_idx] == cell_relations[v_id][adj_cell_to_v_id]){
                     continue_flag = true;
                     break;
                 }
@@ -59,11 +56,12 @@ void find_fully_connected(int start_node){
             }
         }
 
-        if(append_flag)
-            fully_connected.push_back(v_id);
+        if(append_flag){
+            complete_connected_set.push_back(v_id);
+        }
     }
 
-    int ret = calc_weighted_sum(fully_connected);
+    int ret = calc_weighted_sum(complete_connected_set);
 
     if(ret > max_weight_sum) max_weight_sum = ret;
 }
@@ -84,7 +82,6 @@ int main(){
     }
 
     for(int i = 0; i < N; i++){
-        // printf("Start Node: %d | ", i);
         find_fully_connected(i);
     }
     cout << max_weight_sum << endl;
