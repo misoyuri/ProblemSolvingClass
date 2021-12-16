@@ -15,6 +15,8 @@
         "queue": "cpp",
         "deque": "cpp",
         "initializer_list": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "chrono": "cpp",
+        "limits": "cpp"
     }
 }

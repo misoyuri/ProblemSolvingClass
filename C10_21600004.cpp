@@ -1,125 +1,65 @@
 #include <iostream>
 #include <algorithm>
-#include <utility>
 #include <vector>
 #include <queue>
+#include <cstring>
 
-#define BOTH 2
 #define PIZZA 1
-#define CHINESE -1
+#define CHINESE 2
 #define NOT_DETERMINDED 0
 
 using namespace std;
 
 int N = 0;
-pair<int, int> position[50000];
+pair<long long, long long> position[50000];
 vector<int> building_map[50000];
 int brands[50000]{0, };
 
-void print_brands(){
-    int pizza_buildings = 0;
-    int chinese_buildings = 0;
-    printf("pizza: ");
-    for(int i = 0; i < N; i++){
-        if(brands[i] == PIZZA){
-            pizza_buildings++;
-            printf("%d ", i);
-        }else{
-            chinese_buildings++;
-        }
-    }
-
-    printf("\nchine: ");
-    for(int i = 0; i < N; i++){
-        if(brands[i] == CHINESE){
-            printf("%d ", i);
-        }
-    }
-
-    cout << endl << "sol:: " << min(pizza_buildings, chinese_buildings) << endl;
-
-}
-
-void print_answer(){
-    int pizza_buildings = 0;
-    int chinese_buildings = 0;
-    for(int i = 0; i < N; i++){
-        if(brands[i] == PIZZA){
-            pizza_buildings++;
-        }else{
-            chinese_buildings++;
-        }
-    }
-
-    cout << min(pizza_buildings, chinese_buildings) << endl;
-
-
-}
-
-int define_brands(int init_building){
-    int c=0, p=0;
+int BFS(int start){
     queue<int> q;
 
-    brands[init_building] = PIZZA;
-    p++;
-    q.push(init_building);
+    int num_of_brands[3] = {0, 0, 0};
+
+    q.push(start);
+    brands[start] = PIZZA;
+    num_of_brands[PIZZA]++;
 
     while(!q.empty()){
-        int current_building = q.front();
+        int curr_postion = q.front();
         q.pop();
 
-        for(int i = 0; i < building_map[current_building].size(); i++){
-            int next_building = building_map[current_building][i];
-            if(brands[next_building] == NOT_DETERMINDED){
-                if(brands[current_building] == PIZZA){
-                    brands[next_building] = CHINESE;
-                    c++;
-                }else{
-                    brands[next_building] = PIZZA;
-                    p++;
-                }
-                q.push(next_building);
-
+        for(int i = 0; i < building_map[curr_postion].size(); i++){
+            int next_position = building_map[curr_postion][i];
+            if(brands[next_position] == NOT_DETERMINDED){
+                q.push(next_position);
+                brands[next_position] = 3 - brands[curr_postion];
+                num_of_brands[brands[next_position]] += 1;
             }
         }
     }
+
+    return min(num_of_brands[1], num_of_brands[2]);
+}
+
+void define_graphs(){
+    long long x_dist2 = 0;
+    long long y_dist2 = 0;
     
-    return min(p, c);
-}
+    for(int curr = 0; curr < N; curr++){
+        for(int next = curr+1; next < N; next++){
+            if(position[next].first - position[curr].first > 5) break;
 
-void solve(){
-    int min = 0;
-    for(int i = 0; i < N; i++){
-        if(brands[i] == NOT_DETERMINDED){
-            int c = 0, p = 0;
-            min += define_brands(i);
-        }
-    }
-    // cout << "min::" <<min <<endl;
-    cout << min <<endl;
-}
+            x_dist2 = (position[next].first  - position[curr].first)  * (position[next].first  - position[curr].first);
+            y_dist2 = (position[next].second - position[curr].second) * (position[next].second - position[curr].second);
 
-void define_building_map(){
-    int distance = 0;
-    int distance_x = 0;
-    int distance_y = 0;
-    for(int i = 0; i < N; i++){
-        for(int j = i+1; j < N; j++){
-            distance_x = position[j].first - position[i].first;
-            distance_y = position[j].second - position[i].second;
-
-            distance = distance_x * distance_x + distance_y * distance_y;
-
-            if(distance <= 25){
-                building_map[i].push_back(j);
-                building_map[j].push_back(i);
+            if(x_dist2 + y_dist2 <= 25){
+                building_map[curr].push_back(next);
+                building_map[next].push_back(curr);
             }
-
-            if(distance_x > 5 && abs(distance_y) > 5) break;
         }
     }
-}
 
+}
 
 int main(){
     cin >> N;
@@ -127,12 +67,19 @@ int main(){
     for(int i = 0; i < N; i++){
         cin >> position[i].first >> position[i].second;
     }
-    
-    sort(position, position + N);
 
-    define_building_map();
-    solve();
-    // print_brands();
-    // print_answer();
+    sort(position, position + N);
+    
+    int ans = 0;
+    define_graphs();
+
+    for(int i = 0; i < N; i++){
+        if(brands[i] == NOT_DETERMINDED){
+            ans += BFS(i);
+        }
+    }
+    
+    cout << ans << endl;
+
     return 0;
 }
