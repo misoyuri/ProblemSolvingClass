@@ -86,18 +86,14 @@ int main(){
 
         graph[word.front() - 'a'].push_back({word.back() - 'a', word});
     }
-
-
-
-
-
-    if(!is_circuit_or_trail()){
-        cout << 0 << endl;
-        return 0;
-    }
-
+    
     for(int i = 0; i < 26; i++){
         sort(graph[i].begin(), graph[i].end(), comp);
+    }
+
+    if(!is_circuit_or_trail()){
+        cout << 0 << endl;  
+        return 0;
     }
 
     DFS(start_point);
@@ -107,7 +103,7 @@ int main(){
         return 0;
     }
 
-    for(int i = 0; i < sequence.size(); i++){
+    for(int i = sequence.size() - 1; i >= 0; i--){
         cout << sequence[i] << endl;
     }
     
